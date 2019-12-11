@@ -1,7 +1,8 @@
 # ascii2grads
 ## scopo
 Il codice viene eseguito da mediano (in crontab) e produce i file necessaari al funzionamento di FWI.
-Questa versione non era su git ed è stata portata su git il 17.10.2019
+
+I file, essendo parte della procedura di produzione delle mappe AIB sono presenti anche in https://github.com/ARPASMR/AIB/tree/master/ascii2grads
 
 ## uso
 ```
