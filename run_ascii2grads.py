@@ -6,10 +6,24 @@
 
 
 import os,sys,re #,shutil,glob
+import commands
 import time
 #import urllib
 import datetime
 import subprocess
+
+#check if script is already running
+def stop_if_already_running():
+    script_name = os.path.basename(__file__)
+    l = commands.getstatusoutput("ps aux | grep -e '%s' | grep -v grep | awk '{print $2}' | awk '{print $2}'" % script_name)
+    if l[1]:
+        print('Script {0} is already running. Please check crontab or zombie process')
+        # questa parte non funziona su mediano perchè credo ci sia una vecchia versione di logger
+        #command_logger='logger -i -p user.error -s -t PREVISORE-T -P514 -n 10.10.0.15 "Errore script {0} sta già girando per qualche ragione. Controllare processi attivi su mediano"'.format(script_name)
+        #os.system(command_logger)
+        sys.exit(0);
+
+stop_if_already_running()
 
 
 # debug
