@@ -35,11 +35,17 @@ space = re.compile(r'\s+')
 multiSpace = re.compile(r"\s\s+")
 
 
+# debug
+# 0 = only short message (Quiet mode) 
+# 1 = a lot of print message (Verbose mode) 
+debug=0
+
 
 def checkpathfile(time_steps,path,title_file,data_read,utc,file_format,interval):
     i=0
     data_check=data_read
-    print "Start checking {0}_ files existing".format(title_file)
+    if debug==1:
+        print("Start checking {0}_ files existing".format(title_file))
     while i < int(time_steps):
         if i>0:
             data_check=data_check -datetime.timedelta(hours=int(interval))
@@ -52,7 +58,7 @@ def checkpathfile(time_steps,path,title_file,data_read,utc,file_format,interval)
         else:
             namefile_check="{0}/{1}_{2}UTC{3}.{4}".format(path,title_file,data_file_new,utc,file_format)
         if os.path.isfile(namefile_check)==False:
-            print "ERROR: file {0} doesn't exist".format(namefile_check)
+            print("ERROR: file {0} doesn't exist".format(namefile_check))
             sys.exit() 
             # directory exists
         i+=1
@@ -173,11 +179,11 @@ def main():
         opts, args = getopt.getopt(sys.argv[1:], "mi:t:h:z:o:p:", ["help", "ifile=", "time_steps=", "interval=","vars"])
     except getopt.GetoptError:
         manual= 'ascii2grids.py -i <nomefile1> -t <TDEF number of time to consider> -h <TDEF interval in hours> -z < output_var> -o <tile_output> -p <output_path>'
-        print manual
+        print(manual)
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-m':
-            print 'manual'
+            print(manual)
             sys.exit()
         elif opt in ("-i", "--ifile"):
             nomefile1 = arg
@@ -192,25 +198,26 @@ def main():
         elif opt in ("-p", "--interval"):
             output_path = arg         
     if nomefile1=='':
-        print 'ERROR: specify an input file'
+        print('ERROR: specify an input file')
         sys.exit()
     if time_steps=='':
-        print 'ERROR: specify a time step (also 1 is allowed)'
+        print('ERROR: specify a time step (also 1 is allowed)')
         sys.exit()
     if interval=='':
-        print 'ERROR: specify the time interval (e.g hours=1)'
+        print('ERROR: specify the time interval (e.g hours=1)')
         sys.exit()
     if output_variable=='':
-        print 'ERROR: specify the name of the output variable in the ctl file'
+        print('ERROR: specify the name of the output variable in the ctl file')
     if title_output=='':
-        print 'ERROR: specify the name of the output title of the GRADS files'
+        print('ERROR: specify the name of the output title of the GRADS files')
         sys.exit()   
     if output_path=='':
-        print 'ERROR: specify the name of the output path file for the GRADS files'
+        print('ERROR: specify the name of the output path file for the GRADS files')
         sys.exit()   
-    print 'Input file is ', nomefile1
-    print 'Time step: ', time_steps
-    print 'Hour Interval: ', interval    
+    if debug==1:
+        print('Input file is ', nomefile1)
+        print('Time step: ', time_steps)
+        print('Hour Interval: ', interval)    
     # output variables name
     vars_array_o=output_variable
 
@@ -226,13 +233,16 @@ def main():
         i+=1
     if output_path =='': # check if title output file name is given or not, if not initilize to input title_file
         output_path="{0}".format(path)
-        print output_path
-    print "Path: ",path
-    print "Output path: ",output_path
+        if debug==1:
+            print(output_path)
+    if debug==1:
+        print("Path: ",path)
+        print("Output path: ",output_path)
     file_name=file_name_temp[k-1]    
     
     file_time= file_name.split('_')
-    print file_time
+    if debug==1:
+        print(file_time)
     title_file=file_time[0]
     if title_output=='': # check if title output file name is given or not, if not initilize to input title_file
         title_output=title_file
@@ -243,12 +253,13 @@ def main():
     
     
     data_file=data_temp[0]
-    
-    print data_file
+    if debug==1:
+        print(data_file)
     #data_read=time.strptime(data_file,"%Y%m%d%H")
     #print data_read
     data_read=datetime.datetime.strptime(data_file,"%Y%m%d%H")
-    print data_read
+    if debug==1:
+        print(data_read)
     
     #strptime("30 Nov 00", "%d %b %y")
     #data_read=data_file.strftime("%Y%m%d%H")
@@ -263,14 +274,15 @@ def main():
     utc=data_temp[1]
     sign_temp=utc.split('s')
     sign_check=len(sign_temp[0])
-    print data_temp[1].split('s')
-    print sign_temp[1]
+    if debug==1:
+        print(data_temp[1].split('s'))
+        print(sign_temp[1])
     if (sign_check==3):
         utc_zone=int(sign_temp[1])
     elif (sign_check==4):
         utc_zone=int(sign_temp[1])*-1
     else:
-        print 'ERROR: invalid UTC time'
+        print('ERROR: invalid UTC time')
         sys.exit()     
  
     # calcolo data_write (sbagliato.. interpretato male i dati e scrivevamo come data_write quella finale, invece nel file ctl ci vuole la data iniziale)
@@ -280,7 +292,8 @@ def main():
     data_read_z=data_read-datetime.timedelta(hours=int(time_steps)-1)
     data_write=data_read_z.strftime("%H:%Mz%d%b%Y").lower() # lower è per rendere minuscolo l'output di %b che in realtà sarebbe maiuscolo (vd. libreria python-time)
     
-    print data_write
+    if debug==1:
+        print(data_write)
     #exit()
     
     
@@ -292,9 +305,11 @@ def main():
     ########################################################
     # scrivere file .ctl
     ########################################################
-    print "Inizio a leggere il file {0} (solo intestazione) per scrivere file ctl".format(nomefile1)
+    if debug==1:
+        print("Inizio a leggere il file {0} (solo intestazione) per scrivere file ctl".format(nomefile1))
     f = open(nomefile1, 'r') # 'r' = read
-    print nomefile1
+    if debug==1:
+        print nomefile1
     i=0
     while i<6:
         for riga in file(nomefile1): 
@@ -333,9 +348,18 @@ def main():
     ########################################################
     #l'output_path andrebbe reso assoluto anzichè relativo?
     ########################################################
-    
-    nomefile_ctl="{0}/{1}.ctl".format(output_path,title_output)
-    print "Inizio a scrivere il file {0}".format(nomefile_ctl)
+    #controllo il titolo e nel caso cambio quello del ctl
+    if title_output=='tdrh_g':
+        title_output_ctl='rhtd_g'
+    elif title_output=='plzln_g':
+        title_output_ctl='raintana11_g'
+    elif title_output=='CUMplzln_g':
+        title_output_ctl='CUMraintana11_g'
+    else:
+        title_output_ctl=title_output
+    nomefile_ctl="{0}/{1}.ctl".format(output_path,title_output_ctl)
+    if debug==1:
+        print("Inizio a scrivere il file {0}".format(nomefile_ctl))
     data_file_output=data_read_z.strftime("%Y%m%d")
     nomefile_dat="{0}/{1}{2}.dat".format(output_path,data_file_output,title_output)
     nomefile_dat_nopath="^{1}{0}.dat".format(title_output,data_file_output)
@@ -362,7 +386,8 @@ def main():
     ctl.write("\n{0}  0  99  {1}".format (output_variable,title_output))
     ctl.write("\nENDVARS")
     
-    print "ncols={0}, nrows={1}, xllcorner={2}, yllcorner={3},cellsize={4},NODATA_value={5}".format(ncols,nrows,xllcorner,yllcorner,cellsize,NODATA_value)
+    if debug==1:
+        print("ncols={0}, nrows={1}, xllcorner={2}, yllcorner={3},cellsize={4},NODATA_value={5}".format(ncols,nrows,xllcorner,yllcorner,cellsize,NODATA_value))
     ctl.close()
     #lines = f.read()
     #print lines
@@ -384,12 +409,14 @@ def main():
     data_zero=data_read-datetime.timedelta(hours=int(time_steps))
     while t <= int(time_steps):
         avanti=t*int(interval)
-        print "Time {0}".format(avanti)
+        if debug==1:
+            print("Time {0}".format(avanti))
         data_check=data_zero + datetime.timedelta(hours=avanti)
         #print data_check
         data_file_new=data_check.strftime("%Y%m%d%H")
-        print data_file_new
-        print "Read variable {0}".format(title_file)
+        if debug==1:
+            print(data_file_new)
+            print("Read variable {0}".format(title_file))
         nomefile="{0}/{1}_{2}UTC{3}.{4}".format(path, title_file,data_file_new,utc,file_format)      
         if t<int(time_steps):
             #print cumulata
